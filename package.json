@@ -1,0 +1,11 @@
+{
+  "name": "orders-node-app",
+  "version": "1.0.0",
+  "description": "node rest api for orders",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eero Sihvonen",
+  "license": "ISC"
+}
