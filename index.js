@@ -4,11 +4,11 @@ const _ = require('lodash');
 const express = require('express');
 var bodyParser = require('body-parser');
 
-const {getOrders, updateOrder} = require('./server/queries/order-queries');
+const {getAvailableOrders, getReservedOrders, getDoneOrdersFromToday, reserveOrder, startOrder, markOrderDone} = require('./server/queries/order-queries');
 const {findByCredentials, getAllUsers, createUser} = require('./server/queries/user-queries');
 const {User} = require('./server/models/user');
 const {getAllUserRoles, getById} = require('./server/queries/user-role-queries');
-const {authenticate} = require('./server/middleware/authenticate');
+const {authenticate, isUserDriver} = require('./server/middleware/authenticate');
 
 var app = express();
 app.use(bodyParser.json());
@@ -68,30 +68,43 @@ app.get('/user-roles', authenticate, async (req, res) => {
     return res.send(roles);
 });
 
-app.get('/orders', authenticate, async (req, res) => {
-    const reserved = req.query.reserved ? req.query.reserved : true;
-    const started = req.query.started ? req.query.started : true;
-    const done = req.query.done ? req.query.done : true;
+app.get('/available-orders', authenticate, async (req, res) => {
+    res.send(await getAvailableOrders());
+}); 
 
-    console.log(`Reserver ${reserved} and started ${started} and done ${done}`)
+app.get('/reserved-orders', authenticate, isUserDriver, async (req, res) => {
+    res.send(await getReservedOrders(req.isDriver, req.user.id));
+}); 
 
-    const orders = await getOrders(reserved, started, done);
-    res.send(orders);
-});  
+app.get('/todays-done-orders', authenticate, isUserDriver, async (req, res) => {
+    res.send(await getDoneOrdersFromToday(req.isDriver, req.user.id));
+}); 
 
-app.patch('/orders/:id', authenticate, async (req, res) => {
+app.patch('/orders/reserve/:id', authenticate, async (req, res) => {
     try {
-        var id = req.params.id;
-        const reserved = req.body.reserved ? req.body.reserved : false;
-        const started = req.body.started ? req.body.started : false;
-        const done = req.body.done ? req.body.done : false;
-        const driver_id = 3; //TODO
-        const orders = await updateOrder(id, reserved, started, done, driver_id);
-        res.send(orders);
+        res.send(await reserveOrder(req.params.id, req.user.id));
     } catch(e) {
         console.log(e);
         res.status(400).send();
     }
-});    
+});  
 
+app.patch('/orders/start/:id', authenticate, async (req, res) => {
+    try {
+        res.send(await startOrder(req.params.id, req.user.id));
+    } catch(e) {
+        console.log(e);
+        res.status(400).send();
+    }
+}); 
+
+app.patch('/orders/done/:id', authenticate, async (req, res) => {
+    try {
+        res.send(await markOrderDone(req.params.id, req.user.id));
+    } catch(e) {
+        console.log(e);
+        res.status(400).send();
+    }
+}); 
+   
 module.exports={app};

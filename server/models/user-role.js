@@ -3,7 +3,7 @@ const {sequelize} = require('../db/db-connection');
 
 const UserRole = sequelize.define('user_roles', {
     id: {type: Sequelize.INTEGER, primaryKey: true},
-    role_name: Sequelize.STRING
+    role_name: {type :Sequelize.STRING, allowNull: false}
   }, {
     freezeTableName: true,
     tableName: 'user_roles', 

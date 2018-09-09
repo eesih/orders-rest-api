@@ -20,7 +20,8 @@ const Order = sequelize.define('tilaukset', {
     aloitettu: Sequelize.BOOLEAN,
     ajettu: Sequelize.BOOLEAN,
     muokattu: Sequelize.TIME,
-    kuljettaja_id: Sequelize.INTEGER
+    kuljettaja_id: Sequelize.INTEGER,
+    ajettu_pvm: Sequelize.DATEONLY
   }, {
     freezeTableName: true,
     tableName: 'tilaukset',
