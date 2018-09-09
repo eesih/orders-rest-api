@@ -1,13 +1,14 @@
 require('./server/config/config');
 
-
+const _ = require('lodash');
 const express = require('express');
 var bodyParser = require('body-parser');
 
 const {getOrders, updateOrder} = require('./server/queries/order-queries');
-const {getAllUsers, createUser} = require('./server/queries/user-queries');
+const {findByCredentials, getAllUsers, createUser} = require('./server/queries/user-queries');
 const {User} = require('./server/models/user');
 const {getAllUserRoles, getById} = require('./server/queries/user-role-queries');
+const {authenticate} = require('./server/middleware/authenticate');
 
 var app = express();
 app.use(bodyParser.json());
@@ -17,9 +18,7 @@ app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 })
 
-app.post('/users', async (req, res) => {
-
-
+app.post('/users', authenticate, async (req, res) => {
     const roleId = req.body.user_role_id;
     const role = await getById(roleId);
     if(!role) {
@@ -43,17 +42,33 @@ app.post('/users', async (req, res) => {
     }
 });
 
-app.get('/users', async (req, res) => {
+app.post('/users/login', async (req, res) => {
+    try {
+        const body = _.pick(req.body, ['username', 'password']);
+        const user = await findByCredentials(body.username, body.password);
+        const token = await user.generateAuthToken(user);
+        res.header('x-auth', token).send(user);
+    } catch(e) {
+        console.log(e);
+        res.status(401).send();
+    }
+});
+
+app.get('/users', authenticate, async (req, res) => {
     const users = await getAllUsers();
     return res.send(users);
 });
 
-app.get('/user-roles', async (req, res) => {
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+app.get('/user-roles', authenticate, async (req, res) => {
     const roles = await getAllUserRoles();
     return res.send(roles);
 });
 
-app.get('/orders', async (req, res) => {
+app.get('/orders', authenticate, async (req, res) => {
     const reserved = req.query.reserved ? req.query.reserved : true;
     const started = req.query.started ? req.query.started : true;
     const done = req.query.done ? req.query.done : true;
@@ -64,7 +79,7 @@ app.get('/orders', async (req, res) => {
     res.send(orders);
 });  
 
-app.patch('/orders/:id', async (req, res) => {
+app.patch('/orders/:id', authenticate, async (req, res) => {
     try {
         var id = req.params.id;
         const reserved = req.body.reserved ? req.body.reserved : false;
