@@ -1,0 +1,1 @@
+update kuriirikeskus.tilaukset set ajettu = true, varattu=true ,ajettu=true;
