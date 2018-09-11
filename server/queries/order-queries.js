@@ -1,4 +1,3 @@
-const Sequelize = require('sequelize');
 const {Order} = require('../models/order');
 
 var getDoneOrdersFromToday = async (isDriver, id) => {

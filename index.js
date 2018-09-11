@@ -5,7 +5,7 @@ const express = require('express');
 var bodyParser = require('body-parser');
 
 const {getAvailableOrders, getReservedOrders, getDoneOrdersFromToday, reserveOrder, startOrder, markOrderDone} = require('./server/queries/order-queries');
-const {findByCredentials, getAllUsers, createUser} = require('./server/queries/user-queries');
+const {findByCredentials, getAllUsers, createUser, generateAuthToken, removeToken} = require('./server/queries/user-queries');
 const {User} = require('./server/models/user');
 const {getAllUserRoles, getById} = require('./server/queries/user-role-queries');
 const {authenticate, isUserDriver} = require('./server/middleware/authenticate');
@@ -18,7 +18,7 @@ app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 })
 
-app.post('/users', authenticate, async (req, res) => {
+app.post('/users', async (req, res) => {
     const roleId = req.body.user_role_id;
     const role = await getById(roleId);
     if(!role) {
@@ -46,13 +46,23 @@ app.post('/users/login', async (req, res) => {
     try {
         const body = _.pick(req.body, ['username', 'password']);
         const user = await findByCredentials(body.username, body.password);
-        const token = await user.generateAuthToken(user);
+        const token = await generateAuthToken(user);
         res.header('x-auth', token).send(user);
     } catch(e) {
         console.log(e);
         res.status(401).send();
     }
 });
+
+app.delete('/users/me/token', authenticate, async (req, res) => {
+    try {
+         await removeToken(req.user.id, req.token);
+         res.status(200).send();
+     } catch(e) {
+         res.status(400).send();
+     }
+    
+ });
 
 app.get('/users', authenticate, async (req, res) => {
     const users = await getAllUsers();

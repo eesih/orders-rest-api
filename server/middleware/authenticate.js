@@ -1,13 +1,15 @@
-const {findByToken} = require('./../queries/user-queries');
+const {findByToken, findUserById} = require('./../queries/user-queries');
 const {getById} = require('./../queries/user-role-queries');
 
 var authenticate = async (req, res, next) => {
     try {
         var token = req.header('x-auth');
-        const user = await findByToken(token);
+        const userToken = await findByToken(token);
+        const user_id = userToken.user_id;
+        const user = await findUserById(user_id);
     if(user) {
         req.token = token;
-        req.user= user;
+        req.user = user;
         next();
     } else {
         res.status(401).send();   
