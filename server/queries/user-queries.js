@@ -74,11 +74,11 @@ var findByCredentials = async (username, password) => {
                 return user;
             }
         }
+        console.log(`User not found with ${username} username`)
     } catch (error) {
         console.log(error);
         throw new Error('Invalid username or password');   
     }
-    throw new Error('Invalid username or password');
 }
 
 var getAllUsers = async () => { 

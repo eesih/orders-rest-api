@@ -18,7 +18,7 @@ app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 })
 
-app.post('/users', async (req, res) => {
+app.post('/users', authenticate, async (req, res) => {
     const roleId = req.body.user_role_id;
     const role = await getById(roleId);
     if(!role) {
@@ -46,6 +46,7 @@ app.post('/users/login', async (req, res) => {
     try {
         const body = _.pick(req.body, ['username', 'password']);
         const user = await findByCredentials(body.username, body.password);
+        console.log('JOJO',user);
         const token = await generateAuthToken(user);
         res.header('x-auth', token).send(user);
     } catch(e) {

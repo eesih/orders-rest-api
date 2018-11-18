@@ -1,3 +1,21 @@
+  CREATE TABLE `tilaukset` (
+  `id` int(8) NOT NULL AUTO_INCREMENT,
+  `time` int(16) NOT NULL,
+  `tilaaja` varchar(255) NOT NULL,
+  `sposti` varchar(255) NOT NULL,
+  `puh` varchar(255) NOT NULL,
+  `lahettaja` varchar(255) NOT NULL,
+  `puh2` varchar(255) NOT NULL,
+  `nouto` varchar(255) NOT NULL,
+  `vastaanottaja` varchar(255) NOT NULL,
+  `puh3` varchar(255) NOT NULL,
+  `vienti` varchar(255) NOT NULL,
+  `lisatieto` text NOT NULL,
+  `lisatieto2` text NOT NULL,
+  `yhthenk` varchar(255) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=9474 DEFAULT CHARSET=latin1;
+
 CREATE TABLE `user_roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `role_name` varchar(100) NOT NULL,
@@ -16,7 +34,6 @@ CREATE TABLE `users` (
   `updatedAt` datetime NOT NULL,
   `user_role_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `token_UNIQUE` (`token`),
   KEY `user_role_id` (`user_role_id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`user_role_id`) REFERENCES `user_roles` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
