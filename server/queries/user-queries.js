@@ -61,7 +61,29 @@ var findUserById = async (id) => {
     }
 }
 
+var deleteUserById = async (id) => {
+    try {
+        const user =  await User.findById(id);
+        await user.destroy();
+    } catch (error) {
+        throw new Error('User with id ${id} not found!'); 
+    }
+}
+
+var updateUserById = async (id, user) => {
+    await User.sync();
+    const userToBeUpdated =  await User.findById(id);
+    return await userToBeUpdated.update(user);
+}
+
+var updatePasswordChanged = async (id, newPassword) => {
+    await User.sync();
+    const userToBeUpdated =  await User.findById(id);
+    return await userToBeUpdated.update({needPasswordChange: false, password: newPassword});
+}
+
 var findByCredentials = async (username, password) => {
+    await User.sync();
     try {
         const user = await User.findOne({
             where: {
@@ -74,7 +96,7 @@ var findByCredentials = async (username, password) => {
                 return user;
             }
         }
-        console.log(`User not found with ${username} username`)
+        console.log(`User not found with the ${username} username`)
     } catch (error) {
         console.log(error);
         throw new Error('Invalid username or password');   
@@ -91,4 +113,4 @@ var createUser = async (user) => {
     });
 }
 
-module.exports={findByCredentials, getAllUsers, createUser, findByToken, findUserById, generateAuthToken, removeToken};
+module.exports={findByCredentials, getAllUsers, createUser, findByToken, findUserById, generateAuthToken, removeToken, deleteUserById, updateUserById, updatePasswordChanged};

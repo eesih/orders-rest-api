@@ -19,6 +19,7 @@ const Order = sequelize.define('tilaukset', {
     varattu: Sequelize.BOOLEAN,
     aloitettu: Sequelize.BOOLEAN,
     ajettu: Sequelize.BOOLEAN,
+    poistettu: Sequelize.BOOLEAN,
     muokattu: Sequelize.TIME,
     kuljettaja_id: Sequelize.INTEGER,
     ajettu_pvm: Sequelize.DATEONLY

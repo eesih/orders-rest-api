@@ -1,4 +1,24 @@
 const {Order} = require('../models/order');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
+var getAllOrdersByTimestamps = async (fromTS, toTS) => {
+    await Order.sync();
+
+    const orders = await Order.findAll(
+        { 
+            where: {  
+                poistettu: false,            
+                time: {
+                    [Op.gte]: fromTS,
+                    [Op.lte]: toTS
+                }          
+            } 
+        }
+    );
+    console.log(`All orders (${fromTS}-${toTS}) count: ${orders.length}`);
+    return orders;
+}    
 
 var getDoneOrdersFromToday = async (isDriver, id) => {
     await Order.sync();
@@ -7,6 +27,7 @@ var getDoneOrdersFromToday = async (isDriver, id) => {
     if(isDriver) {
         orders = await Order.findAll({ where: 
             { 
+                poistettu: false,
                 ajettu: true,
                 kuljettaja_id: id,
                 ajettu_pvm: today
@@ -15,7 +36,7 @@ var getDoneOrdersFromToday = async (isDriver, id) => {
     } else {
         orders = await Order.findAll({ where: { ajettu: true, ajettu_pvm: today} });
     }    
-    console.log(`Reserved order count: ${orders.length}`);
+    console.log(`Done orders from today count: ${orders.length}`);
     return orders;
 }    
 
@@ -25,6 +46,7 @@ var getReservedOrders = async (isDriver, id) => {
     if(isDriver) {
         orders = await Order.findAll({ where: 
             { 
+                poistettu: false,
                 varattu: true,
                 ajettu: false,
                 aloitettu: false,
@@ -33,6 +55,7 @@ var getReservedOrders = async (isDriver, id) => {
         });
     } else {
         orders = await Order.findAll({ where: { 
+            poistettu: false,
             varattu: true,
             ajettu: false,
             aloitettu: false,
@@ -43,9 +66,35 @@ var getReservedOrders = async (isDriver, id) => {
     return orders;
 }
 
+var getStartedOrders = async (isDriver, id) => {
+    await Order.sync();
+    let orders;
+    if(isDriver) {
+        orders = await Order.findAll({ where: 
+            { 
+                poistettu: false,
+                varattu: true,
+                aloitettu: true,
+                ajettu: false,
+                kuljettaja_id: id
+            } 
+        });
+    } else {
+        orders = await Order.findAll({ where: { 
+            poistettu: false,
+            varattu: true,
+            aloitettu: true,
+            ajettu: false,
+        } 
+    });
+    }    
+    console.log(`Started order count: ${orders.length}`);
+    return orders;
+}
+
 var getAvailableOrders = async () => {
     await Order.sync();
-    const orders = await Order.findAll({ where: { varattu: false} });
+    const orders = await Order.findAll({ where: { poistettu: false, varattu: false} });
     console.log(`Available order count: ${orders.length}`);
     return orders;
 }
@@ -82,6 +131,15 @@ var markOrderDone = async (id, driver_id) => {
     return await orderToBeMarkedAsDone.save();
 }
 
+var markOrderRemoved = async (id) => {
+    await Order.sync();
+    const orderToBeMarkedAsRemoved = await Order.findById(id);
+    if(orderToBeMarkedAsRemoved.varattu || orderToBeMarkedAsRemoved.aloitettu || orderToBeMarkedAsRemoved.ajettu) {
+        throw new Error(`Cant mark ${id} order as removed`);
+    }
+    orderToBeMarkedAsRemoved.poistettu = true;
+    return await orderToBeMarkedAsRemoved.save();
+}
 
-module.exports={getAvailableOrders, getReservedOrders, getDoneOrdersFromToday, reserveOrder, startOrder, markOrderDone};
+module.exports={getAvailableOrders, getReservedOrders, getStartedOrders, getDoneOrdersFromToday, reserveOrder, startOrder, markOrderDone, markOrderRemoved, getAllOrdersByTimestamps};
 

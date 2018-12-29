@@ -20,23 +20,27 @@ CREATE TABLE `user_roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `role_name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `phone` varchar(255) DEFAULT NULL,
+  `username` varchar(255)  NOT NULL,
+  `password` varchar(255)  NOT NULL,
+  `email` varchar(255)  NOT NULL,
+  `first_name` varchar(255)  NOT NULL,
+  `last_name` varchar(255)  NOT NULL,
+  `phone` varchar(255)  NOT NULL,
   `address` varchar(255) DEFAULT NULL,
   `postalcode` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   `user_role_id` int(11) NOT NULL,
+  `needPasswordChange` boolean DEFAULT true,
   PRIMARY KEY (`id`),
   KEY `user_role_id` (`user_role_id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`user_role_id`) REFERENCES `user_roles` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 CREATE TABLE `user_tokens` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -45,5 +49,4 @@ CREATE TABLE `user_tokens` (
   `updatedAt` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
-SELECT * FROM kuriirikeskus.user_tokens;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;

@@ -23,11 +23,13 @@ var authenticate = async (req, res, next) => {
 var isUserDriver = async (req, res, next) => {
     try {
         var token = req.header('x-auth');
-        const user = await findByToken(token);
+        const userToken = await findByToken(token);
+        const user_id = userToken.user_id;
+        const user = await findUserById(user_id);
         if(user) {
             const user_role_id = user.user_role_id;
             const userRole = await getById(user_role_id);
-            if(userRole.dataValues.role_name === 'kuljettaja') {
+            if(userRole.dataValues.role_name === 'Kuljettaja') {
                 console.log('User is a driver');
                 req.isDriver = true;
             } else {

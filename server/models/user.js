@@ -3,26 +3,26 @@ const {sequelize} = require('../db/db-connection');
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('users', {
-      id: {type: Sequelize.INTEGER, primaryKey:true},
-      username: {type: Sequelize.STRING, allowNull: false, unique: true},
-      email: Sequelize.STRING,
-      password: {type: Sequelize.STRING, allowNull: false},
-      phone: Sequelize.STRING,
+      id: { type: Sequelize.INTEGER, primaryKey:true },
+      username: {type: Sequelize.STRING, allowNull: false, unique: true },
+      password: { type: Sequelize.STRING, allowNull: false },
+      email: { type: Sequelize.STRING, allowNull: false },
+      phone: { type: Sequelize.STRING, allowNull: false },
+      first_name: { type: Sequelize.STRING, allowNull: false },
+      last_name: { type: Sequelize.STRING, allowNull: false },
       address: Sequelize.STRING,
       postalcode: Sequelize.STRING,
+      city: Sequelize.STRING,
       user_role_id: Sequelize.INTEGER,
       createdAt: Sequelize.TIME,
-      updatedAt: Sequelize.TIME
+      updatedAt: Sequelize.TIME,
+      needPasswordChange: Sequelize.BOOLEAN
     }, {
       freezeTableName: true,
       tableName: 'users'
   });
 
   User.beforeSave(async (user, options) => {
-    await hashPasswordIfChanged(user);
-  });
-
-  User.beforeUpdate(async (user, options) => {
     await hashPasswordIfChanged(user);
   });
 
